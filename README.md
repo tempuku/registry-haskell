@@ -1,1 +1,1 @@
-# registry_haskell
+# registry-haskell
