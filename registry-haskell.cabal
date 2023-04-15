@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.35.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -25,14 +25,28 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Adapter.Storage.Hasql.ProductPrices
+      Domain.Models
+      Interfaces.DAO
+      Interfaces.DTO
+      Usecases.Helpers
+      Usecases.Services
   other-modules:
       Paths_registry_haskell
   hs-source-dirs:
       src
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  default-extensions:
+      NoImplicitPrelude
+      DeriveAnyClass
+      GeneralizedNewtypeDeriving
+      DeriveGeneric
+      Rank2Types
+      OverloadedStrings
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -O2 -flate-specialise -fspecialise-aggressively
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
+    , rio
   default-language: Haskell2010
 
 executable registry-haskell-exe
@@ -41,10 +55,19 @@ executable registry-haskell-exe
       Paths_registry_haskell
   hs-source-dirs:
       app
+  default-extensions:
+      NoImplicitPrelude
+      DeriveAnyClass
+      GeneralizedNewtypeDeriving
+      DeriveGeneric
+      Rank2Types
+      OverloadedStrings
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , registry-haskell
+    , rio
   default-language: Haskell2010
 
 test-suite registry-haskell-test
@@ -54,8 +77,17 @@ test-suite registry-haskell-test
       Paths_registry_haskell
   hs-source-dirs:
       test
+  default-extensions:
+      NoImplicitPrelude
+      DeriveAnyClass
+      GeneralizedNewtypeDeriving
+      DeriveGeneric
+      Rank2Types
+      OverloadedStrings
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , registry-haskell
+    , rio
   default-language: Haskell2010
