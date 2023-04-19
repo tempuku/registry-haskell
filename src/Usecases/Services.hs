@@ -5,6 +5,7 @@ import RIO
 import qualified Interfaces.DTO as IN
 import qualified Interfaces.DAO as IN
 import qualified Usecases.Helpers as UC
+import qualified Usecases.Interactors as UC
 
 type MakeOrder m = Monad m => IN.MakeOrderDTO -> m (Either Err ())
 type SendToPipe m = Monad m => IN.NewOrderDTO -> m (Either Err ())
@@ -18,7 +19,7 @@ data OrdersService m = OrdersService
     }
  
 
-makeOrder :: IN.ProductPricesDAO m -> UC.EnrichOrderItemsDataWithPrices -> MakeOrder m
+makeOrder :: (UC.Logger m, MonadIO m) => IN.ProductPricesDAO m -> UC.EnrichOrderItemsDataWithPrices -> MakeOrder m
 makeOrder productPricesDAO enrichOrderItemsDataWithPrices makeOrderData = do
     let productIDs = map IN.mOrItProductId (IN.mOrOrderItems makeOrderData)
     eitherProductsPricesMap <- IN._getMap productPricesDAO productIDs
@@ -28,4 +29,5 @@ makeOrder productPricesDAO enrichOrderItemsDataWithPrices makeOrderData = do
         Right productsPricesMap -> do
             let orderItemsDTOs = enrichOrderItemsDataWithPrices productsPricesMap (IN.mOrOrderItems makeOrderData)
             let newOrderDTO = IN.NewOrderDTO (IN.mOrUserId makeOrderData) orderItemsDTOs
+            UC.logDebug $ newOrderDTO
             pure $ Right ()

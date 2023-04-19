@@ -31,6 +31,7 @@ library
       Interfaces.DTO
       Usecases.Helpers
       Usecases.Services
+      Usecases.Interactors
   other-modules:
       Paths_registry_haskell
   hs-source-dirs:
