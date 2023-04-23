@@ -1,10 +1,12 @@
+{-# LANGUAGE NumericUnderscores #-}
 module Main where
 
 import RIO
 import RIO.Time
 import qualified RIO.Map as Map
 import System.IO
-import Control.Concurrent (forkIO)
+import System.Posix.Signals
+import Control.Concurrent (forkIO, yield)
 import qualified Adapter.Storage.InMemory.ProductPrices as HasqlUserRepo
 import qualified Domain.Models as D
 import qualified Interfaces.DAO as IN
@@ -34,9 +36,17 @@ main = do
     let makeOrderItemDTO1 = IN.MakeOrderItemDTO (D.ProductId 1)  1
     let makeOrderItemDTO2 = IN.MakeOrderItemDTO (D.ProductId 2) 2
     let makeOrderDTO = IN.MakeOrderDTO (D.UserId 1) [makeOrderItemDTO1, makeOrderItemDTO2]
-    a <- UC._makeOrder ordersService makeOrderDTO
-    UC.logDebug a
     UC.eventPipeProcessor eventPipes eventPipeProcessorService
+    -- void $ forkIO $ forever $ UC._makeOrder ordersService makeOrderDTO
+    -- forM_ [1 ..10] $ \n ->  forkIO $ forever $ UC._makeOrder ordersService makeOrderDTO
+    -- 10 `replicateM_` UC._makeOrder ordersService makeOrderDTO
+    replicateM_ 10 $ forkIO $ forever (UC._makeOrder ordersService makeOrderDTO >> threadDelay 3_000_000)
+    -- forever (threadDelay 3_000_000 >> UC._makeOrder ordersService makeOrderDTO)
+    -- UC._makeOrder ordersService makeOrderDTO
+    -- _ <- getLine
+    -- blockSignals reservedSignals
+    -- awaitSignal Nothing >> yield
+    forever $ threadDelay 10000000
     UC.logDebug "krinz"
 
 

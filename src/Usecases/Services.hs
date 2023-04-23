@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Usecases.Services where
 
 import RIO
@@ -8,6 +9,7 @@ import qualified Usecases.Helpers as UC
 import qualified Usecases.Interactors as UC
 import Control.Concurrent (forkIO)
 import System.IO (print)
+import GHC.Conc (retry)
 
 type NewOrdersPipe = TQueue IN.NewOrderDTO
 type SuccessOrdersPipe = TQueue IN.NewOrderDTO
@@ -23,11 +25,48 @@ data EventPipes = EventPipes {
     -- ,_successOrdersPipe :: SuccessOrdersPipe
 }
 
+
+-- |'Control.Concurrent.STM.retry' until the given condition is true of
+-- the given value.  Then return the value that satisfied the condition.
+waitFor :: (a -> Bool) -> STM a -> STM a
+waitFor p events = do
+        event <- events
+        if p event
+                then return event
+                else retry
+
+-- |'Control.Concurrent.STM.retry' until the given value is True.
+waitForTrue :: STM Bool -> STM ()
+waitForTrue p = waitFor id p >> return ()
+
+atomLoop :: STM a -> IO ()
+atomLoop x = go
+    where go = atomically x >> go
+
+
+-- |'atomLoop' with a 'forkIO'
+forkAtomLoop :: STM a -> IO ThreadId
+forkAtomLoop = forkIO . atomLoop
+
+
 processNewOrder :: NewOrdersPipe -> IO ()
 processNewOrder newOrdersPipe = do
-    print "event new"
+    print "wait"
+    -- waitForTrue newOrdersPipe
     order <- atomically $ readTQueue newOrdersPipe
+    print "get value"
     print order
+
+-- processNewOrder :: NewOrdersPipe -> IO ()
+-- processNewOrder newOrdersPipe = do
+--     print "event new"
+--     order <- atomically $ handle newOrdersPipe
+--     print order
+--     print "event new2"
+--     where
+--         handle (queue::NewOrdersPipe) = do
+--             let order = tryReadTQueue queue
+--             fromMaybe <$> retry <*> order
 
 eventPipeProcessor :: EventPipes -> EventPipeProcessor -> IO ()
 eventPipeProcessor eventPipes processor = do
@@ -76,6 +115,6 @@ makeOrder ordersPipe productPricesDAO enrichOrderItemsDataWithPrices makeOrderDa
         Right productsPricesMap -> do
             let orderItemsDTOs = enrichOrderItemsDataWithPrices productsPricesMap (IN.mOrOrderItems makeOrderData)
             let newOrderDTO = IN.NewOrderDTO (IN.mOrUserId makeOrderData) orderItemsDTOs
-            UC.logDebug newOrderDTO
+            UC.logDebug "write"
             atomically $ writeTQueue ordersPipe newOrderDTO
             pure (Right ())
