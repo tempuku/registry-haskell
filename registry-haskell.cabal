@@ -25,13 +25,13 @@ source-repository head
 
 library
   exposed-modules:
-      Adapter.Storage.Hasql.ProductPrices
+      Adapter.Storage.InMemory.ProductPrices
       Domain.Models
       Interfaces.DAO
       Interfaces.DTO
       Usecases.Helpers
-      Usecases.Services
       Usecases.Interactors
+      Usecases.Services
   other-modules:
       Paths_registry_haskell
   hs-source-dirs:
