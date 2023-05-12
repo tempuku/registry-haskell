@@ -1,4 +1,4 @@
-module Usecases.Helpers where
+module Helpers where
 
 import RIO
 import qualified RIO.Map as Map

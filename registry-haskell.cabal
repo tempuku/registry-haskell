@@ -27,11 +27,13 @@ library
   exposed-modules:
       Adapter.Storage.InMemory.ProductPrices
       Domain.Models
+      Helpers
       Interfaces.DAO
       Interfaces.DTO
-      Usecases.Helpers
-      Usecases.Interactors
-      Usecases.Services
+      Interfaces.Logger
+      Interfaces.Usecases
+      Services
+      Usecases
   other-modules:
       Paths_registry_haskell
   hs-source-dirs:
@@ -43,6 +45,7 @@ library
       DeriveGeneric
       Rank2Types
       OverloadedStrings
+      NumericUnderscores
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -O2 -flate-specialise -fspecialise-aggressively
   build-depends:
       aeson
@@ -64,6 +67,7 @@ executable registry-haskell-exe
       DeriveGeneric
       Rank2Types
       OverloadedStrings
+      NumericUnderscores
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
@@ -87,6 +91,7 @@ test-suite registry-haskell-test
       DeriveGeneric
       Rank2Types
       OverloadedStrings
+      NumericUnderscores
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson

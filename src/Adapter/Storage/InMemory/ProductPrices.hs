@@ -3,7 +3,6 @@ module Adapter.Storage.InMemory.ProductPrices where
 import RIO
 import qualified RIO.Map as Map
 import qualified Interfaces.DAO as IN
-import qualified Usecases.Interactors as UC
 import qualified Domain.Models as D
 
 type ProductPricesKVStore = Map D.ProductId Float
@@ -24,4 +23,3 @@ getMap productPricesKVStore productIDList = do
                 hasNothing (Nothing:_) = True
                 hasNothing (_:xs) = hasNothing xs
                     -- Map.insert (productID (Map.lookup productID productPricesKVStore) pricesMap)
-

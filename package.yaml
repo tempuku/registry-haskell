@@ -39,6 +39,7 @@ ghc-options:
 default-extensions:
 - NoImplicitPrelude
 - DeriveAnyClass
+
 # Deriving extensions
 - GeneralizedNewtypeDeriving
 - DeriveGeneric
@@ -46,6 +47,9 @@ default-extensions:
 
 # Misc
 - OverloadedStrings
+
+# Math
+- NumericUnderscores
 
 library:
   source-dirs: src

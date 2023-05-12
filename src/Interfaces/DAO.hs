@@ -2,7 +2,7 @@ module Interfaces.DAO where
 
 import RIO
 import qualified Domain.Models as D
-import qualified Usecases.Interactors as UC
+import qualified Interfaces.Logger as IN
 
 data Err
   = ErrTechnical
@@ -11,7 +11,7 @@ data Err
 
 type ProductPricesMap = Map D.ProductId Float
 
-type GetMap m = (UC.Logger m, MonadIO m) => [D.ProductId] -> m (Either Err ProductPricesMap)
+type GetMap m = (IN.Logger m, MonadIO m) => [D.ProductId] -> m (Either Err ProductPricesMap)
 
 data ProductPricesDAO m = ProductPricesDAO 
     {
