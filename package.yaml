@@ -24,6 +24,8 @@ dependencies:
 - aeson
 - rio
 - unix
+- servant-server
+- wai
 
 ghc-options:
 - -Wall

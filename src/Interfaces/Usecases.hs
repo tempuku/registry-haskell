@@ -1,9 +1,11 @@
-module Interfaces.Logger where
+module Interfaces.Usecases where
 
 import RIO
 import Services
 
+type MakeOrderUsecase m = MakeOrder m
+
 
 data Usecases m = Usecases {
-    _makeOrderUsecase :: MakeOrder m
+    _makeOrderUsecase :: MakeOrderUsecase m
 }

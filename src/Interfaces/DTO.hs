@@ -20,12 +20,12 @@ data MakeOrderDTO = MakeOrderDTO
 
 data MakeOrderItemDTO = MakeOrderItemDTO {
     mOrItProductId :: D.ProductId,
-    mOrItCount :: Int
+    mOrItCount :: Natural
 } deriving (Eq, Generic, Show, ToJSON, FromJSON)
 
 data NewOrderItemDTO = NewOrderItemDTO {
     nOrItProductId :: D.ProductId,
-    nOrItCount :: Int,
+    nOrItCount :: Natural,
     nOrItProductPrice :: Float
 } deriving (Eq, Generic, Show, ToJSON, FromJSON)
 

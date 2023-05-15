@@ -14,7 +14,7 @@ import qualified Interfaces.DTO as IN
 import qualified Interfaces.Logger as IN
 import qualified Interfaces.Usecases as IN
 import qualified Helpers as HP
-import qualified Usecases.Services as UC
+import qualified Services as UC
 
 
 main :: IO ()
