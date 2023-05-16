@@ -42,8 +42,8 @@ processNewOrder newOrdersPipe = do
 --             let order = tryReadTQueue queue
 --             fromMaybe <$> retry <*> order
 
-eventPipeProcessor :: EventPipes -> EventPipeProcessor -> IO ()
-eventPipeProcessor eventPipes processor = do
+eventPipeProcessorRunner :: EventPipes -> EventPipeProcessor -> IO ()
+eventPipeProcessorRunner eventPipes processor = do
     -- atomically $ do
     --     _newOrderProcessor processor (_newOrdersPipe eventPipes) `orElse` _successOrderProcessor processor (_successOrdersPipe eventPipes)
     void $ forkIO $ forever $ _newOrderProcessor processor (_newOrdersPipe eventPipes)

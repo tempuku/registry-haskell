@@ -29,6 +29,7 @@ library
       Adapter.Http.Servant.Router
       Adapter.Http.Servant.Schemas
       Adapter.Storage.InMemory.ProductPrices
+      Config.Config
       Domain.Models
       Helpers
       Interfaces.DAO
@@ -53,10 +54,12 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , mtl
     , rio
     , servant-server
     , unix
     , wai
+    , warp
   default-language: Haskell2010
 
 executable registry-haskell-exe
@@ -77,11 +80,13 @@ executable registry-haskell-exe
   build-depends:
       aeson
     , base >=4.7 && <5
+    , mtl
     , registry-haskell
     , rio
     , servant-server
     , unix
     , wai
+    , warp
   default-language: Haskell2010
 
 test-suite registry-haskell-test
@@ -103,9 +108,11 @@ test-suite registry-haskell-test
   build-depends:
       aeson
     , base >=4.7 && <5
+    , mtl
     , registry-haskell
     , rio
     , servant-server
     , unix
     , wai
+    , warp
   default-language: Haskell2010

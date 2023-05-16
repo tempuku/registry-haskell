@@ -26,6 +26,8 @@ dependencies:
 - unix
 - servant-server
 - wai
+- warp
+- mtl
 
 ghc-options:
 - -Wall

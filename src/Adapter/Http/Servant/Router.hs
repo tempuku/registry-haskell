@@ -1,20 +1,26 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
-
 module Adapter.Http.Servant.Router where
-
-import Adapter.Http.Servant.Schemas
-import RIO
+    
+import RIO hiding (Handler)
 import Servant
+import qualified Network.Wai as Wai
+import qualified Control.Monad.Except as Except
+
 import Interfaces.Usecases (Usecases)
 import Adapter.Http.Servant.Handlers
 import qualified Interfaces.Usecases as UC
 import qualified Interfaces.Logger as IN
-import qualified Network.Wai as Wai
+import Adapter.Http.Servant.Schemas
 
--- start :: (MonadIO m, IN.Logger m, MonadThrow m) => Usecases m -> m Application
--- start usecases =
---     pure $ serve (Proxy :: Proxy API) (server usecases)
+-- Define your application
+app :: (MonadThrow m, IN.Logger m) => Usecases m -> (forall a. m a -> IO a) -> IO Wai.Application
+app usecases runner =  pure $ serve api $
+  hoistServer api (ioToHandler . runner) (server usecases)
+  where
+    api :: Proxy API
+    api = Proxy
+    ioToHandler = Handler . Except.ExceptT . try
 
 type API = 
     Get '[JSON] NoContent -- health check

@@ -6,6 +6,9 @@ import qualified RIO.Map as Map
 import System.IO
 import System.Posix.Signals
 import Control.Concurrent (forkIO)
+import qualified Network.Wai.Handler.Warp as Warp
+import qualified Config.Config as Config
+
 import Usecases
 import qualified Adapter.Storage.InMemory.ProductPrices as HasqlUserRepo
 import qualified Domain.Models as D
@@ -15,35 +18,53 @@ import qualified Interfaces.Logger as IN
 import qualified Interfaces.Usecases as IN
 import qualified Helpers as HP
 import qualified Services as UC
+import Adapter.Http.Servant.Router
 
 
 main :: IO ()
 main = do
-    let inMemoryPrices = Map.fromList [(D.ProductId 1, 1.0), (D.ProductId 2, 2.0), (D.ProductId 3, 3.0), (D.ProductId 4, 4.0)]
-    let productPricesDAO = IN.ProductPricesDAO (
-            HasqlUserRepo.getMap inMemoryPrices
-            )
-
+    port <- Config.getIntFromEnv "PORT" 3000
+    storageBackend <- Config.getStringFromEnv "STORAGE" "inMem"
     newOrderQueue <- newTQueueIO
-    let ordersService = UC.OrdersService (
-            UC.makeOrder newOrderQueue productPricesDAO HP.enrichOrderItemsDataWithPrices
-            ) 
-    let eventPipes = UC.EventPipes (
-            newOrderQueue
+    router <- case storageBackend of
+            "inMem" -> app (usecasesBuilder newOrderQueue inMemProductPricesDAO) $ runRIO ()
+            _ -> error $ "Incorrect storage:" <> storageBackend
+    eventPipeProcessorStart newOrderQueue
+    Warp.run port router
+
+usecasesBuilder :: (Monad m, IN.Logger m, MonadUnliftIO m) => UC.NewOrdersPipe -> IN.ProductPricesDAO m -> IN.Usecases m
+usecasesBuilder orderQueue productPricesDAO = IN.Usecases (
+                makeOrderUsecase ordersService
             )
-    let eventPipeProcessorService = UC.EventPipeProcessor (
+            where
+                ordersService = UC.OrdersService (
+                        UC.makeOrder orderQueue productPricesDAO HP.enrichOrderItemsDataWithPrices
+                    ) 
+
+inMemProductPricesDAO :: (Monad m, IN.Logger m, MonadUnliftIO m) => IN.ProductPricesDAO m 
+inMemProductPricesDAO = IN.ProductPricesDAO (
+                HasqlUserRepo.getMap inMemoryPrices
+            )
+            where
+                inMemoryPrices = Map.fromList [
+                        (D.ProductId 1, 1.0) 
+                        , (D.ProductId 2, 2.0)
+                        , (D.ProductId 3, 3.0)
+                        , (D.ProductId 4, 4.0)
+                    ]
+
+eventPipeProcessorStart :: UC.NewOrdersPipe -> IO ()
+eventPipeProcessorStart orderQueue = UC.eventPipeProcessorRunner eventPipes eventPipeProcessorService
+    where
+        eventPipes = UC.EventPipes (
+            orderQueue
+            )
+        eventPipeProcessorService = UC.EventPipeProcessor (
             UC.processNewOrder
             )
-    let usecases = IN.Usecases (
-            makeOrderUsecase ordersService
-            )
-    let makeOrderItemDTO1 = IN.MakeOrderItemDTO (D.ProductId 1)  1
-    let makeOrderItemDTO2 = IN.MakeOrderItemDTO (D.ProductId 2) 2
-    let makeOrderDTO = IN.MakeOrderDTO (D.UserId 1) [makeOrderItemDTO1, makeOrderItemDTO2]
-    UC.eventPipeProcessor eventPipes eventPipeProcessorService
-    replicateM_ 10 $ forkIO $ forever (UC._makeOrder ordersService makeOrderDTO >> threadDelay 3_000_000)
-    forever $ threadDelay 10000000
 
+instance IN.Logger (RIO a) where
+  logDebug msg = liftIO $ print msg
 
 instance IN.Logger IO where
   logDebug msg = print msg
