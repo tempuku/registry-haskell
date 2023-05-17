@@ -22,12 +22,18 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.7 && < 5
 - aeson
+- aeson-pretty
 - rio
 - unix
 - servant-server
+- servant-swagger
+- servant-swagger-ui
+- servant-swagger-ui-core
+- swagger2
 - wai
 - warp
 - mtl
+- lens
 
 ghc-options:
 - -Wall

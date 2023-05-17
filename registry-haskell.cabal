@@ -53,10 +53,16 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -O2 -flate-specialise -fspecialise-aggressively
   build-depends:
       aeson
+    , aeson-pretty
     , base >=4.7 && <5
+    , lens
     , mtl
     , rio
     , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , servant-swagger-ui-core
+    , swagger2
     , unix
     , wai
     , warp
@@ -79,11 +85,17 @@ executable registry-haskell-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
+    , aeson-pretty
     , base >=4.7 && <5
+    , lens
     , mtl
     , registry-haskell
     , rio
     , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , servant-swagger-ui-core
+    , swagger2
     , unix
     , wai
     , warp
@@ -107,11 +119,17 @@ test-suite registry-haskell-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
+    , aeson-pretty
     , base >=4.7 && <5
+    , lens
     , mtl
     , registry-haskell
     , rio
     , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , servant-swagger-ui-core
+    , swagger2
     , unix
     , wai
     , warp

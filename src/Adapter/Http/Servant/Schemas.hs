@@ -11,12 +11,12 @@ import Data.Aeson.Types
 data CreateOrderRequest = CreateOrderRequest {
     user_id :: !D.UserId
     ,order_items :: ![CreateOrderRequestItem]
-} deriving (Eq, Generic, Show, ToJSON, FromJSON)
+} deriving (Eq, Generic, Typeable, FromHttpApiData, Show, ToJSON, FromJSON)
 
 data CreateOrderRequestItem = CreateOrderRequestItem {
     product_id :: !D.ProductId
     ,count :: !Natural
-} deriving (Eq, Generic, Show, ToJSON, FromJSON)
+} deriving (Eq, Generic, Typeable, FromHttpApiData,  Show, ToJSON, FromJSON)
 
 data CreateOrderResponse = CreateOrderResponse {
     status :: !String

@@ -23,6 +23,7 @@ import Adapter.Http.Servant.Router
 
 main :: IO ()
 main = do
+    writeSwaggerJSON
     port <- Config.getIntFromEnv "PORT" 3000
     storageBackend <- Config.getStringFromEnv "STORAGE" "inMem"
     newOrderQueue <- newTQueueIO
