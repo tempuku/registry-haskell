@@ -1,7 +1,6 @@
 {
     "swagger": "2.0",
     "definitions": {
-        "Swagger": {},
         "CreateOrderRequest": {
             "type": "object",
             "properties": {
@@ -98,21 +97,6 @@
                         },
                         "in": "body"
                     }
-                ]
-            }
-        },
-        "/swagger.json": {
-            "get": {
-                "responses": {
-                    "200": {
-                        "schema": {
-                            "$ref": "#/definitions/Swagger"
-                        },
-                        "description": ""
-                    }
-                },
-                "produces": [
-                    "application/json;charset=utf-8"
                 ]
             }
         },

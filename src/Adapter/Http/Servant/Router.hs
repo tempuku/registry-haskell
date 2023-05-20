@@ -6,7 +6,6 @@ import RIO hiding (Handler, (.~))
 import Servant
 import Servant.Swagger
 import Servant.Swagger.UI
--- import Servant.Swagger.UI.Core
 import Data.Swagger
 import Control.Lens
 import qualified Network.Wai as Wai
@@ -23,7 +22,6 @@ import Data.Aeson
 import qualified RIO.ByteString as BL8
 import qualified RIO.ByteString.Lazy as LBS
 import qualified RIO.ByteString as BS
-import Servant.Swagger.UI.Core (SwaggerUiHtml)
 
 appAPI :: Proxy API
 appAPI = Proxy
@@ -39,38 +37,33 @@ type AppAPI =
     Get '[JSON] NoContent -- health check
     :<|> "orders" :> ReqBody '[JSON] CreateOrderRequest :> Post '[JSON] CreateOrderResponse
 
-type SwaggerAPI = "swagger.json" :> Get '[JSON] Swagger
-
-type API = SwaggerAPI :<|> AppAPI
-    -- :<|> SwaggerSchemaUI "swagger-ui" "swagger.json"
+type API = 
+      SwaggerSchemaUI "swagger-ui" "swagger.json"
+      :<|> AppAPI
 
 server :: (MonadThrow m, IN.Logger m) => Usecases m -> ServerT API m
-server usecases = return todoSwagger :<|> healthH :<|> newOrder
-                -- :<|> swaggerServer
+server usecases = 
+                  swaggerServer
+                  :<|> healthH :<|> newOrder
     where
         healthH = pure NoContent
         newOrder = makeOrderHandler (UC._makeOrderUsecase usecases)
-        -- swaggerServer = swaggerSchemaUIServerT todoSwagger
+        swaggerServer = swaggerSchemaUIServerT todoSwagger
 
 instance ToSchema CreateOrderRequest where
   declareNamedSchema proxy = genericDeclareNamedSchema defaultSchemaOptions proxy
     & mapped.schema.description ?~ "This is some real Order right here"
-    & mapped.schema.example ?~ toJSON (CreateOrderRequest (D.UserId 1) ([CreateOrderRequestItem (D.ProductId 1) 1]))
+    & mapped.schema.example ?~ toJSON (CreateOrderRequest (D.UserId 1) [CreateOrderRequestItem (D.ProductId 1) 1])
 
 instance ToSchema CreateOrderRequestItem
 instance ToSchema D.ProductId
 instance ToSchema D.UserId
 instance ToParamSchema CreateOrderResponse
 instance ToSchema CreateOrderResponse
--- instance ToSchema (SwaggerUiHtml a b) where
---   declareNamedSchema _ = pure $ NamedSchema (Just "Swagger") mempty
--- instance ToSchema Value
-instance ToSchema Swagger where
-  declareNamedSchema _ = pure $ NamedSchema (Just "Swagger") mempty
 
 -- | Swagger spec for Todo API.
 todoSwagger :: Swagger
-todoSwagger = toSwagger appAPI
+todoSwagger = toSwagger (Proxy :: Proxy AppAPI)
   & info.title   .~ "Registry API"
   & info.version .~ "1.0"
   & info.description ?~ "This is an API that tests swagger integration"
