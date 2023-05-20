@@ -50,7 +50,7 @@ library
       Rank2Types
       OverloadedStrings
       NumericUnderscores
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -O2 -flate-specialise -fspecialise-aggressively
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-missing-export-lists -Wno-orphans -O2 -flate-specialise -fspecialise-aggressively
   build-depends:
       aeson
     , aeson-pretty
@@ -71,9 +71,23 @@ library
 executable registry-haskell-exe
   main-is: Main.hs
   other-modules:
+      Adapter.Http.Servant.Handlers
+      Adapter.Http.Servant.Router
+      Adapter.Http.Servant.Schemas
+      Adapter.Storage.InMemory.ProductPrices
+      Config.Config
+      Domain.Models
+      Helpers
+      Interfaces.DAO
+      Interfaces.DTO
+      Interfaces.Logger
+      Interfaces.Usecases
+      Services
+      Usecases
       Paths_registry_haskell
   hs-source-dirs:
       app
+      src
   default-extensions:
       NoImplicitPrelude
       DeriveAnyClass
@@ -82,7 +96,7 @@ executable registry-haskell-exe
       Rank2Types
       OverloadedStrings
       NumericUnderscores
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-missing-export-lists -Wno-orphans -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , aeson-pretty
@@ -116,7 +130,7 @@ test-suite registry-haskell-test
       Rank2Types
       OverloadedStrings
       NumericUnderscores
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-missing-export-lists -Wno-orphans -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , aeson-pretty

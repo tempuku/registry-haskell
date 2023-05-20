@@ -1,11 +1,8 @@
 module Main where
 
 import RIO
-import RIO.Time
 import qualified RIO.Map as Map
 import System.IO
-import System.Posix.Signals
-import Control.Concurrent (forkIO)
 import qualified Network.Wai.Handler.Warp as Warp
 import qualified Config.Config as Config
 
@@ -13,7 +10,6 @@ import Usecases
 import qualified Adapter.Storage.InMemory.ProductPrices as HasqlUserRepo
 import qualified Domain.Models as D
 import qualified Interfaces.DAO as IN
-import qualified Interfaces.DTO as IN
 import qualified Interfaces.Logger as IN
 import qualified Interfaces.Usecases as IN
 import qualified Helpers as HP
@@ -33,7 +29,7 @@ main = do
     eventPipeProcessorStart newOrderQueue
     Warp.run port router
 
-usecasesBuilder :: (Monad m, IN.Logger m, MonadUnliftIO m) => UC.NewOrdersPipe -> IN.ProductPricesDAO m -> IN.Usecases m
+usecasesBuilder :: (IN.Logger m, MonadUnliftIO m) =>UC.NewOrdersPipe -> IN.ProductPricesDAO m -> IN.Usecases m
 usecasesBuilder orderQueue productPricesDAO = IN.Usecases (
                 makeOrderUsecase ordersService
             )
@@ -42,7 +38,7 @@ usecasesBuilder orderQueue productPricesDAO = IN.Usecases (
                         UC.makeOrder orderQueue productPricesDAO HP.enrichOrderItemsDataWithPrices
                     ) 
 
-inMemProductPricesDAO :: (Monad m, IN.Logger m, MonadUnliftIO m) => IN.ProductPricesDAO m 
+inMemProductPricesDAO :: (MonadUnliftIO m) =>IN.ProductPricesDAO m 
 inMemProductPricesDAO = IN.ProductPricesDAO (
                 HasqlUserRepo.getMap inMemoryPrices
             )
