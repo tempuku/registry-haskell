@@ -1,13 +1,17 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-module Services where
+module Services.EventPipe where
 
 import RIO
 
+import Services.Message
+import qualified Domain.Models as D
 import qualified Interfaces.DTO as IN
 import qualified Interfaces.DAO as IN
-import qualified Helpers as HP
 import qualified Interfaces.Logger as IN
 import Control.Concurrent (forkIO)
+import Control.Monad.Except (runExceptT, ExceptT (ExceptT))
+
+
 type NewOrdersPipe = TQueue IN.NewOrderDTO
 type SuccessOrdersPipe = TQueue IN.NewOrderDTO
 
@@ -23,13 +27,25 @@ data EventPipes = EventPipes {
 }
 
 
-processNewOrder :: (IN.Logger m, MonadIO m) =>  NewOrdersPipe -> m ()
-processNewOrder newOrdersPipe = do
-    IN.logDebug "wait"
-    -- waitForTrue newOrdersPipe
-    order <- atomically $ readTQueue newOrdersPipe
-    IN.logDebug "get value"
-    IN.logDebug order
+processNewOrder :: (IN.Logger m, MonadUnliftIO m) => IN.OrdersDAO m -> MessageService m -> NewOrdersPipe -> m ()
+processNewOrder ordersDAO messageService newOrdersPipe = do
+    newOrder <- atomically $ readTQueue newOrdersPipe
+    err <- runExceptT $ do
+        order <- ExceptT $ IN._createOrder ordersDAO newOrder
+        ExceptT $ _sendNewOrderMsg messageService (makeMassage newOrder (D.orderId order))
+    either IN.logDebug IN.logDebug err
+    where 
+        makeMassage newOrder orderId = IN.NewOrderMessageDTO (IN.nOrUserId newOrder) 
+            (
+                map 
+                (\orderItem -> IN.NewOrderItemMessageDTO 
+                    (IN.nOrItProductId orderItem)  
+                    (IN.nOrItCount orderItem) 
+                    (IN.nOrItProductPrice orderItem)
+                    orderId
+                ) 
+                (IN.nOrOrderItems newOrder)
+            )
 
 -- processNewOrder :: NewOrdersPipe -> IO ()
 -- processNewOrder newOrdersPipe = do
@@ -65,29 +81,3 @@ eventPipeProcessorRunner eventPipes processor = do
 --     -- atomically $ do
 --     --     _newOrderProcessor processor (_newOrdersPipe eventPipes) `orElse` _successOrderProcessor processor (_successOrdersPipe eventPipes)
 --     void $ forkIO $ forever $ _newOrderProcessor processor (_newOrdersPipe eventPipes)
-
-
-type MakeOrder m = IN.MakeOrderDTO -> m (Either Err ())
-
-
-data Err = ErrTech deriving (Show, Eq)
-
-data OrdersService m = OrdersService
-    {
-        _makeOrder ::  MakeOrder m
-    }
-
-
-makeOrder :: (IN.Logger m, MonadIO m) => NewOrdersPipe -> IN.ProductPricesDAO m -> HP.EnrichOrderItemsDataWithPrices -> MakeOrder m
-makeOrder ordersPipe productPricesDAO enrichOrderItemsDataWithPrices makeOrderData = do
-    let productIDList = map IN.mOrItProductId (IN.mOrOrderItems makeOrderData)
-    eitherProductsPricesMap <- IN._getMap productPricesDAO productIDList
-    case eitherProductsPricesMap of
-        Left err -> do
-            pure $ Left ErrTech
-        Right productsPricesMap -> do
-            let orderItemsDTOs = enrichOrderItemsDataWithPrices productsPricesMap (IN.mOrOrderItems makeOrderData)
-            let newOrderDTO = IN.NewOrderDTO (IN.mOrUserId makeOrderData) orderItemsDTOs
-            IN.logDebug "write"
-            atomically $ writeTQueue ordersPipe newOrderDTO
-            pure (Right ())

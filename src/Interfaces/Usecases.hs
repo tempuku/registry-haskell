@@ -1,7 +1,7 @@
 module Interfaces.Usecases where
 
 import RIO
-import Services
+import Services.Order
 
 type MakeOrderUsecase m = MakeOrder m
 

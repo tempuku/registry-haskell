@@ -36,7 +36,9 @@ library
       Interfaces.DTO
       Interfaces.Logger
       Interfaces.Usecases
-      Services
+      Services.EventPipe
+      Services.Message
+      Services.Order
       Usecases
   other-modules:
       Paths_registry_haskell
@@ -82,7 +84,9 @@ executable registry-haskell-exe
       Interfaces.DTO
       Interfaces.Logger
       Interfaces.Usecases
-      Services
+      Services.EventPipe
+      Services.Message
+      Services.Order
       Usecases
       Paths_registry_haskell
   hs-source-dirs:

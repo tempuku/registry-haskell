@@ -33,3 +33,15 @@ data NewOrderDTO = NewOrderDTO {
     nOrUserId :: D.UserId,
     nOrOrderItems :: [NewOrderItemDTO]
 } deriving (Eq, Generic, Show, ToJSON, FromJSON)
+
+data NewOrderMessageDTO = NewOrderMessageDTO {
+    nOrMUserId :: D.UserId,
+    nOrMOrderItems :: [NewOrderItemMessageDTO]
+} deriving (Eq, Generic, Show, ToJSON, FromJSON)
+
+data NewOrderItemMessageDTO = NewOrderItemMessageDTO {
+    nOrItMProductId :: D.ProductId,
+    nOrItMCount :: Natural,
+    nOrItMProductPrice :: Float,
+    nOrItMOrderId :: D.OrderId
+} deriving (Eq, Generic, Show, ToJSON, FromJSON)

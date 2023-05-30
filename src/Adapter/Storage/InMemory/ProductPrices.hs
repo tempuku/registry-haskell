@@ -7,7 +7,7 @@ import qualified Domain.Models as D
 
 type ProductPricesKVStore = Map D.ProductId Float
 
-getMap :: (MonadIO m) =>  ProductPricesKVStore -> [D.ProductId] -> m (Either IN.Err IN.ProductPricesMap)
+getMap :: (MonadIO m) =>  ProductPricesKVStore -> [D.ProductId] -> m (Either IN.ErrDAO IN.ProductPricesMap)
 getMap productPricesKVStore productIDList = do
     if null productIDList
         then pure (Left IN.ErrValidation)

@@ -13,7 +13,8 @@ import qualified Interfaces.DAO as IN
 import qualified Interfaces.Logger as IN
 import qualified Interfaces.Usecases as IN
 import qualified Helpers as HP
-import qualified Services as UC
+import qualified Services.Order as UC
+import qualified Services.EventPipe as UC
 import Adapter.Http.Servant.Router
 
 
