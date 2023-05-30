@@ -51,6 +51,7 @@ ghc-options:
 default-extensions:
 - NoImplicitPrelude
 - DeriveAnyClass
+- TypeFamilies
 
 # Deriving extensions
 - GeneralizedNewtypeDeriving

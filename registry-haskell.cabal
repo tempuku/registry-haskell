@@ -47,6 +47,7 @@ library
   default-extensions:
       NoImplicitPrelude
       DeriveAnyClass
+      TypeFamilies
       GeneralizedNewtypeDeriving
       DeriveGeneric
       Rank2Types
@@ -95,6 +96,7 @@ executable registry-haskell-exe
   default-extensions:
       NoImplicitPrelude
       DeriveAnyClass
+      TypeFamilies
       GeneralizedNewtypeDeriving
       DeriveGeneric
       Rank2Types
@@ -129,6 +131,7 @@ test-suite registry-haskell-test
   default-extensions:
       NoImplicitPrelude
       DeriveAnyClass
+      TypeFamilies
       GeneralizedNewtypeDeriving
       DeriveGeneric
       Rank2Types

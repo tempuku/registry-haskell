@@ -23,7 +23,7 @@ data OrdersDAO m = OrdersDAO {
         _createOrder :: IN.NewOrderDTO -> m (Either ErrDAO D.Order)
     }
 
-data MessagesDAO m = MessageDAO 
+data MessagesDAO m = MessagesDAO 
     {
         _sendNewOrderMsg :: IN.NewOrderMessageDTO -> m (Either ErrDAO ())
     }

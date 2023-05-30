@@ -15,6 +15,7 @@ import qualified Interfaces.Usecases as IN
 import qualified Helpers as HP
 import qualified Services.Order as UC
 import qualified Services.EventPipe as UC
+import qualified Services.Message as UC
 import Adapter.Http.Servant.Router
 
 
@@ -51,14 +52,23 @@ inMemProductPricesDAO = IN.ProductPricesDAO (
                         , (D.ProductId 4, 4.0)
                     ]
 
-eventPipeProcessorStart :: UC.NewOrdersPipe -> IO ()
+eventPipeProcessorStart :: (MonadIO m, m ~ IO) => UC.NewOrdersPipe -> m ()
 eventPipeProcessorStart orderQueue = UC.eventPipeProcessorRunner eventPipes eventPipeProcessorService
     where
         eventPipes = UC.EventPipes (
             orderQueue
             )
         eventPipeProcessorService = UC.EventPipeProcessor (
-            UC.processNewOrder
+            UC.processNewOrder ordersDAO messageService
+            )
+        messageService = UC.MessageService (
+                UC.sendNewOrderMsg messagesDAO
+            )
+        messagesDAO = IN.MessagesDAO (
+                _b
+            )
+        ordersDAO = IN.OrdersDAO (
+                 _a
             )
 
 instance IN.Logger (RIO a) where

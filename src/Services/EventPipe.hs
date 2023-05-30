@@ -16,8 +16,8 @@ type NewOrdersPipe = TQueue IN.NewOrderDTO
 type SuccessOrdersPipe = TQueue IN.NewOrderDTO
 
 
-data EventPipeProcessor = EventPipeProcessor {
-    _newOrderProcessor ::  NewOrdersPipe -> IO ()
+data EventPipeProcessor m = EventPipeProcessor {
+    _newOrderProcessor :: (MonadUnliftIO m, MonadIO m) =>  NewOrdersPipe -> m ()
     -- ,_successOrderProcessor :: SuccessOrdersPipe -> IO ()
 }
 
@@ -27,13 +27,14 @@ data EventPipes = EventPipes {
 }
 
 
-processNewOrder :: (IN.Logger m, MonadUnliftIO m) => IN.OrdersDAO m -> MessageService m -> NewOrdersPipe -> m ()
+processNewOrder :: (IN.Logger m, MonadUnliftIO m, m ~ IO) => IN.OrdersDAO m -> MessageService m -> NewOrdersPipe -> m ()
 processNewOrder ordersDAO messageService newOrdersPipe = do
     newOrder <- atomically $ readTQueue newOrdersPipe
     err <- runExceptT $ do
         order <- ExceptT $ IN._createOrder ordersDAO newOrder
         ExceptT $ _sendNewOrderMsg messageService (makeMassage newOrder (D.orderId order))
     either IN.logDebug IN.logDebug err
+    liftIO $ pure ()
     where 
         makeMassage newOrder orderId = IN.NewOrderMessageDTO (IN.nOrUserId newOrder) 
             (
@@ -47,37 +48,6 @@ processNewOrder ordersDAO messageService newOrdersPipe = do
                 (IN.nOrOrderItems newOrder)
             )
 
--- processNewOrder :: NewOrdersPipe -> IO ()
--- processNewOrder newOrdersPipe = do
---     print "event new"
---     order <- atomically $ handle newOrdersPipe
---     print order
---     print "event new2"
---     where
---         handle (queue::NewOrdersPipe) = do
---             let order = tryReadTQueue queue
---             fromMaybe <$> retry <*> order
-
-eventPipeProcessorRunner :: EventPipes -> EventPipeProcessor -> IO ()
+eventPipeProcessorRunner :: (MonadUnliftIO m, m ~ IO) => EventPipes -> EventPipeProcessor m -> m ()
 eventPipeProcessorRunner eventPipes processor = do
-    -- atomically $ do
-    --     _newOrderProcessor processor (_newOrdersPipe eventPipes) `orElse` _successOrderProcessor processor (_successOrdersPipe eventPipes)
     void $ forkIO $ forever $ _newOrderProcessor processor (_newOrdersPipe eventPipes)
-
-
--- data EventPipeProcessor m = EventPipeProcessor {
---     _newOrderProcessor ::  NewOrdersPipe -> m ()
---     ,_successOrderProcessor :: SuccessOrdersPipe -> m ()
--- }
-
--- data EventPipes = EventPipes {
---     _newOrdersPipe :: NewOrdersPipe
---     ,_successOrdersPipe :: SuccessOrdersPipe
--- }
-
-
--- eventPipeProcessor :: (UC.Logger m, MonadIO m) => EventPipes -> EventPipeProcessor m -> m ()
--- eventPipeProcessor eventPipes processor = do
---     -- atomically $ do
---     --     _newOrderProcessor processor (_newOrdersPipe eventPipes) `orElse` _successOrderProcessor processor (_successOrdersPipe eventPipes)
---     void $ forkIO $ forever $ _newOrderProcessor processor (_newOrdersPipe eventPipes)
