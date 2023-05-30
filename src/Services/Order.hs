@@ -8,10 +8,15 @@ import qualified Interfaces.DAO as IN
 import Services.EventPipe
 import qualified Helpers as HP
 import qualified Interfaces.Logger as IN
-import Control.Concurrent (forkIO)
 
 
-type MakeOrder m = IN.MakeOrderDTO -> m (Either IN.ErrDAO ())
+newtype OrderErr = OrderErr String
+
+instance Show OrderErr where
+    show (OrderErr e) = e
+
+
+type MakeOrder m = IN.MakeOrderDTO -> m (Either OrderErr ())
 
 
 data OrdersService m = OrdersService
@@ -26,10 +31,13 @@ makeOrder ordersPipe productPricesDAO enrichOrderItemsDataWithPrices makeOrderDa
     eitherProductsPricesMap <- IN._getMap productPricesDAO productIDList
     case eitherProductsPricesMap of
         Left err -> do
-            pure $ Left ErrTech
+            handleError err
         Right productsPricesMap -> do
             let orderItemsDTOs = enrichOrderItemsDataWithPrices productsPricesMap (IN.mOrOrderItems makeOrderData)
             let newOrderDTO = IN.NewOrderDTO (IN.mOrUserId makeOrderData) orderItemsDTOs
             IN.logDebug "write"
             atomically $ writeTQueue ordersPipe newOrderDTO
             pure (Right ())
+    where
+        handleError (IN.ErrTechnical e) = pure $ Left $ OrderErr e
+        handleError (IN.ErrValidation e) = pure $ Left $ OrderErr e

@@ -6,8 +6,8 @@ import qualified Interfaces.Logger as IN
 import qualified Interfaces.DTO as IN
 
 data ErrDAO
-  = ErrTechnical
-  | ErrValidation
+  = ErrTechnical String
+  | ErrValidation String
   deriving (Show, Eq)
 
 type ProductPricesMap = Map D.ProductId Float
