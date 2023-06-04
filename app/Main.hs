@@ -28,7 +28,7 @@ main = do
     router <- case storageBackend of
             "inMem" -> app (usecasesBuilder newOrderQueue inMemProductPricesDAO) $ runRIO ()
             _ -> error $ "Incorrect storage:" <> storageBackend
-    eventPipeProcessorStart newOrderQueue
+    eventPipeProcessorStart newOrderQueue $ runRIO ()
     Warp.run port router
 
 usecasesBuilder :: (IN.Logger m, MonadUnliftIO m) =>UC.NewOrdersPipe -> IN.ProductPricesDAO m -> IN.Usecases m
@@ -38,21 +38,21 @@ usecasesBuilder orderQueue productPricesDAO = IN.Usecases (
             where
                 ordersService = UC.OrdersService (
                         UC.makeOrder orderQueue productPricesDAO HP.enrichOrderItemsDataWithPrices
-                    ) 
+                    )
 
-inMemProductPricesDAO :: (MonadUnliftIO m) =>IN.ProductPricesDAO m 
+inMemProductPricesDAO :: (MonadUnliftIO m) =>IN.ProductPricesDAO m
 inMemProductPricesDAO = IN.ProductPricesDAO (
                 HasqlUserRepo.getMap inMemoryPrices
             )
             where
                 inMemoryPrices = Map.fromList [
-                        (D.ProductId 1, 1.0) 
+                        (D.ProductId 1, 1.0)
                         , (D.ProductId 2, 2.0)
                         , (D.ProductId 3, 3.0)
                         , (D.ProductId 4, 4.0)
                     ]
 
-eventPipeProcessorStart :: (MonadIO m, m ~ IO) => UC.NewOrdersPipe -> m ()
+eventPipeProcessorStart :: (MonadIO m, IN.Logger m) => UC.NewOrdersPipe -> (forall a. m a -> IO a) -> IO ()
 eventPipeProcessorStart orderQueue = UC.eventPipeProcessorRunner eventPipes eventPipeProcessorService
     where
         eventPipes = UC.EventPipes (

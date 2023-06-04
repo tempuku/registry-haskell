@@ -17,7 +17,7 @@ type SuccessOrdersPipe = TQueue IN.NewOrderDTO
 
 
 data EventPipeProcessor m = EventPipeProcessor {
-    _newOrderProcessor :: (MonadUnliftIO m, MonadIO m) =>  NewOrdersPipe -> m ()
+    _newOrderProcessor :: (MonadIO m, MonadIO m) =>  NewOrdersPipe -> m ()
     -- ,_successOrderProcessor :: SuccessOrdersPipe -> IO ()
 }
 
@@ -27,14 +27,14 @@ data EventPipes = EventPipes {
 }
 
 
-processNewOrder :: (IN.Logger m, MonadUnliftIO m, m ~ IO) => IN.OrdersDAO m -> MessageService m -> NewOrdersPipe -> m ()
+processNewOrder :: (IN.Logger m, MonadIO m) => IN.OrdersDAO m -> MessageService m -> NewOrdersPipe -> m ()
 processNewOrder ordersDAO messageService newOrdersPipe = do
     newOrder <- atomically $ readTQueue newOrdersPipe
     err <- runExceptT $ do
         order <- ExceptT $ IN._createOrder ordersDAO newOrder
         ExceptT $ _sendNewOrderMsg messageService (makeMassage newOrder (D.orderId order))
     either IN.logDebug IN.logDebug err
-    liftIO $ pure ()
+    pure ()
     where 
         makeMassage newOrder orderId = IN.NewOrderMessageDTO (IN.nOrUserId newOrder) 
             (
@@ -48,6 +48,6 @@ processNewOrder ordersDAO messageService newOrdersPipe = do
                 (IN.nOrOrderItems newOrder)
             )
 
-eventPipeProcessorRunner :: (MonadUnliftIO m, m ~ IO) => EventPipes -> EventPipeProcessor m -> m ()
-eventPipeProcessorRunner eventPipes processor = do
-    void $ forkIO $ forever $ _newOrderProcessor processor (_newOrdersPipe eventPipes)
+eventPipeProcessorRunner :: MonadIO m => EventPipes -> EventPipeProcessor m -> (forall a. m a -> IO a) -> IO ()
+eventPipeProcessorRunner eventPipes processor runner = do
+    void $ forkIO $ forever $ runner $ _newOrderProcessor processor (_newOrdersPipe eventPipes)
