@@ -35,6 +35,8 @@ dependencies:
 - warp
 - mtl
 - lens
+- hasql
+- hasql-transaction
 
 ghc-options:
 - -Wall
