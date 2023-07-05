@@ -37,6 +37,7 @@ dependencies:
 - lens
 - hasql
 - hasql-transaction
+- hasql-th
 
 ghc-options:
 - -Wall
@@ -56,6 +57,8 @@ default-extensions:
 - DeriveAnyClass
 - TypeFamilies
 - RecordWildCards
+- LambdaCase
+- ApplicativeDo 
 
 # Deriving extensions
 - GeneralizedNewtypeDeriving

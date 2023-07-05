@@ -28,9 +28,10 @@ library
       Adapter.Http.Servant.Handlers
       Adapter.Http.Servant.Router
       Adapter.Http.Servant.Schemas
+      Adapter.Storage.Hasql.Order
+      Adapter.Storage.Hasql.Statement
       Adapter.Storage.InMemory.ProductPrices
       Adapter.Storage.Kafka.Messages
-      Adapter.Storage.Hasql.Order
       Config.Config
       Domain.Models
       Helpers
@@ -51,6 +52,8 @@ library
       DeriveAnyClass
       TypeFamilies
       RecordWildCards
+      LambdaCase
+      ApplicativeDo
       GeneralizedNewtypeDeriving
       DeriveGeneric
       Rank2Types
@@ -61,6 +64,9 @@ library
       aeson
     , aeson-pretty
     , base >=4.7 && <5
+    , hasql
+    , hasql-th
+    , hasql-transaction
     , hw-kafka-client
     , lens
     , mtl
@@ -73,8 +79,6 @@ library
     , unix
     , wai
     , warp
-    , hasql
-    , hasql-transaction
   default-language: Haskell2010
 
 executable registry-haskell-exe
@@ -83,6 +87,8 @@ executable registry-haskell-exe
       Adapter.Http.Servant.Handlers
       Adapter.Http.Servant.Router
       Adapter.Http.Servant.Schemas
+      Adapter.Storage.Hasql.Order
+      Adapter.Storage.Hasql.Statement
       Adapter.Storage.InMemory.ProductPrices
       Adapter.Storage.Kafka.Messages
       Config.Config
@@ -105,6 +111,8 @@ executable registry-haskell-exe
       DeriveAnyClass
       TypeFamilies
       RecordWildCards
+      LambdaCase
+      ApplicativeDo
       GeneralizedNewtypeDeriving
       DeriveGeneric
       Rank2Types
@@ -115,6 +123,9 @@ executable registry-haskell-exe
       aeson
     , aeson-pretty
     , base >=4.7 && <5
+    , hasql
+    , hasql-th
+    , hasql-transaction
     , hw-kafka-client
     , lens
     , mtl
@@ -142,6 +153,8 @@ test-suite registry-haskell-test
       DeriveAnyClass
       TypeFamilies
       RecordWildCards
+      LambdaCase
+      ApplicativeDo
       GeneralizedNewtypeDeriving
       DeriveGeneric
       Rank2Types
@@ -152,6 +165,9 @@ test-suite registry-haskell-test
       aeson
     , aeson-pretty
     , base >=4.7 && <5
+    , hasql
+    , hasql-th
+    , hasql-transaction
     , hw-kafka-client
     , lens
     , mtl
