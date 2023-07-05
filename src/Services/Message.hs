@@ -13,5 +13,4 @@ data MessageService m = MessageService
     }
 
 sendNewOrderMsg :: IN.MessagesDAO m -> IN.NewOrderMessageDTO -> m (Either IN.ErrDAO ())
-sendNewOrderMsg messageDAO newOrderDTO = undefined
-
+sendNewOrderMsg IN.MessagesDAO {..} newOrderDTO = _sendNewOrderMsg newOrderDTO

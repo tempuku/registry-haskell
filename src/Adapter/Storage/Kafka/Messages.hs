@@ -1,5 +1,4 @@
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE RecordWildCards #-}
 module Adapter.Storage.Kafka.Messages where
 
 import Kafka.Producer.Types
