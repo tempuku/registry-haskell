@@ -21,11 +21,18 @@ import Hasql.Statement
 import Hasql.Transaction
 import Hasql.Transaction.Sessions
 import RIO.Partial (toEnum)
+import RIO.Time (UTCTime)
 
 
 -- execTransaction :: MonadIO m => HConn.Connection -> Transaction.Transaction -> m (Either Session.QueryError b)
 -- execQuery conn transaction = liftIO $ Session.run (Transaction.run transaction) conn
 
+data Order = Order {
+    orderId :: D.OrderId,
+    orderUserId :: D.UserId,
+    orderCreatedAt :: UTCTime,
+    orderStatus :: D.OrderStatus
+}
 
 
 -- Encode/Decode functions for PostgreSQL queries
@@ -39,21 +46,21 @@ orderItemDecoder =
     <*> DEC.column (DEC.nonNullable DEC.float4)
 
 
-orderDecoder :: DEC.Row D.Order
+orderDecoder :: DEC.Row Order
 orderDecoder =
-  D.Order
+  Order
     <$> DEC.column (DEC.nonNullable (fmap (D.OrderId . fromIntegral) DEC.int8))
     <*> DEC.column (DEC.nonNullable (fmap (D.UserId . fromIntegral) DEC.int8))
     <*> DEC.column (DEC.nonNullable DEC.timestamptz)
-    <*> DEC.column (DEC.nonNullable (fmap (toEnum . fromIntegral) DEC.int2))
-    -- <*> DEC.column (DEC.nonNullable $ DEC.listArray DEC.nonNullable $  fmap fromIntegral DEC.int8)
-    -- <*> DEC.column (DEC.nonNullable $ DEC.listArray (DEC.nonNullable orderItemDecoder))
+    <*> DEC.column (DEC.nonNullable $ toEnum . fromIntegral <$> DEC.int2)
 
 
-orderEncoder :: D.Order -> ENC.Params D.Order
+orderEncoder :: Order -> ENC.Params Order
 orderEncoder order =
-  contramap D.orderId (ENC.param (ENC.nonNullable ENC.int8))
-    <> contramap D.orderUserId (ENC.param (ENC.nonNullable ENC.int8))
+  contramap orderId (ENC.param (ENC.nonNullable $ D.OrderId . fromIntegral <$> ENC.int8))
+    <> contramap orderUserId (ENC.param (ENC.nonNullable $ D.UserId . fromIntegral <$> ENC.int8))
+    <> contramap orderCreatedAt (ENC.param (ENC.nonNullable ENC.timestamptz))
+    <> contramap orderStatus (ENC.param (ENC.nonNullable $ toEnum . fromIntegral <$> ENC.int2))
 
 orderItemEncoder :: D.OrderItem -> ENC.Params D.OrderItem
 orderItemEncoder orderItem =
