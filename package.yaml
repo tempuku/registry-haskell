@@ -35,6 +35,9 @@ dependencies:
 - warp
 - mtl
 - lens
+- hasql
+- hasql-transaction
+- hasql-th
 
 ghc-options:
 - -Wall
@@ -54,6 +57,9 @@ default-extensions:
 - DeriveAnyClass
 - TypeFamilies
 - RecordWildCards
+- LambdaCase
+- QuasiQuotes 
+- ApplicativeDo 
 
 # Deriving extensions
 - GeneralizedNewtypeDeriving

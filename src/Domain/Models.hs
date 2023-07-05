@@ -46,9 +46,9 @@ data Order = Order {
 } deriving (Eq, Generic, Show, ToJSON, FromJSON)
 
 data OrderItem = OrderItem {
-	orderItemID :: OrderItemId,
-	orderItemOrderID :: OrderId,
-	orderItemProductID :: ProductId,
+	orderItemId :: OrderItemId,
+	orderItemOrderId :: OrderId,
+	orderItemProductId :: ProductId,
 	orderItemCount :: Int,
 	orderItemProductPrice :: Float
 } deriving (Eq, Generic, Show, ToJSON, FromJSON)

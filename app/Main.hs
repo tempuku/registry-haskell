@@ -8,6 +8,7 @@ import qualified Config.Config as Config
 
 import Usecases
 import qualified Adapter.Storage.InMemory.ProductPrices as HasqlUserRepo
+import qualified Adapter.Storage.Kafka.Messages as KafkaRepo
 import qualified Domain.Models as D
 import qualified Interfaces.DAO as IN
 import qualified Interfaces.Logger as IN
@@ -65,7 +66,7 @@ eventPipeProcessorStart orderQueue = UC.eventPipeProcessorRunner eventPipes even
                 UC.sendNewOrderMsg messagesDAO
             )
         messagesDAO = IN.MessagesDAO (
-                _b
+                KafkaRepo.sendNewOrderMsg
             )
         ordersDAO = IN.OrdersDAO (
                  _a
