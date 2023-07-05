@@ -64,9 +64,9 @@ orderEncoder order =
 
 orderItemEncoder :: D.OrderItem -> ENC.Params D.OrderItem
 orderItemEncoder orderItem =
-  contramap D.orderItemId (ENC.param (ENC.nonNullable ENC.int8))
-    <> contramap D.orderItemProductId (ENC.param (ENC.nonNullable ENC.int8))
-    <> contramap D.orderItemCount (ENC.param (ENC.nonNullable ENC.int8))
+  contramap D.orderItemId (ENC.param (ENC.nonNullable $ D.OrderItemId . fromIntegral <$> ENC.int8))
+    <> contramap D.orderItemProductId (ENC.param (ENC.nonNullable $ D.orderItemProductId . fromIntegral <$> ENC.int8))
+    <> contramap D.orderItemCount (ENC.param (ENC.nonNullable $ fromIntegral <$> ENC.int8))
     <> contramap D.orderItemProductPrice (ENC.param (ENC.nonNullable ENC.float4))
 
 -- Function to insert a new order into the database
