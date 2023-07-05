@@ -30,6 +30,7 @@ library
       Adapter.Http.Servant.Schemas
       Adapter.Storage.InMemory.ProductPrices
       Adapter.Storage.Kafka.Messages
+      Adapter.Storage.Hasql.Order
       Config.Config
       Domain.Models
       Helpers
@@ -72,6 +73,8 @@ library
     , unix
     , wai
     , warp
+    , hasql
+    , hasql-transaction
   default-language: Haskell2010
 
 executable registry-haskell-exe
