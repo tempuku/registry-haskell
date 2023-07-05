@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.0.
+-- This file has been generated from package.yaml by hpack version 0.35.2.
 --
 -- see: https://github.com/sol/hpack
 
@@ -29,6 +29,7 @@ library
       Adapter.Http.Servant.Router
       Adapter.Http.Servant.Schemas
       Adapter.Storage.InMemory.ProductPrices
+      Adapter.Storage.Kafka.Messages
       Config.Config
       Domain.Models
       Helpers
@@ -48,6 +49,7 @@ library
       NoImplicitPrelude
       DeriveAnyClass
       TypeFamilies
+      RecordWildCards
       GeneralizedNewtypeDeriving
       DeriveGeneric
       Rank2Types
@@ -58,6 +60,7 @@ library
       aeson
     , aeson-pretty
     , base >=4.7 && <5
+    , hw-kafka-client
     , lens
     , mtl
     , rio
@@ -78,6 +81,7 @@ executable registry-haskell-exe
       Adapter.Http.Servant.Router
       Adapter.Http.Servant.Schemas
       Adapter.Storage.InMemory.ProductPrices
+      Adapter.Storage.Kafka.Messages
       Config.Config
       Domain.Models
       Helpers
@@ -97,6 +101,7 @@ executable registry-haskell-exe
       NoImplicitPrelude
       DeriveAnyClass
       TypeFamilies
+      RecordWildCards
       GeneralizedNewtypeDeriving
       DeriveGeneric
       Rank2Types
@@ -107,6 +112,7 @@ executable registry-haskell-exe
       aeson
     , aeson-pretty
     , base >=4.7 && <5
+    , hw-kafka-client
     , lens
     , mtl
     , registry-haskell
@@ -132,6 +138,7 @@ test-suite registry-haskell-test
       NoImplicitPrelude
       DeriveAnyClass
       TypeFamilies
+      RecordWildCards
       GeneralizedNewtypeDeriving
       DeriveGeneric
       Rank2Types
@@ -142,6 +149,7 @@ test-suite registry-haskell-test
       aeson
     , aeson-pretty
     , base >=4.7 && <5
+    , hw-kafka-client
     , lens
     , mtl
     , registry-haskell
