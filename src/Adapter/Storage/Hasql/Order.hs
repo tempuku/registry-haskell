@@ -7,9 +7,7 @@ import qualified Interfaces.DAO as IN
 import qualified Interfaces.DTO as IN
 import qualified Domain.Models as D
 import qualified Adapter.Storage.Hasql.Statement as ST
-import qualified Hasql.Connection as HConn
 import qualified Hasql.Session as Session
-import Hasql.Statement (Statement (Statement))
 -- import qualified PostgreSQL.ErrorCodes as PgErr
 import RIO hiding (trace)
 import qualified Interfaces.Usecases as UC
@@ -22,17 +20,19 @@ import Hasql.Transaction.Sessions
 import qualified Hasql.Session as Session
 import RIO.Partial (toEnum)
 import RIO.Time (UTCTime)
+import Prelude (print)
+import RIO.List.Partial (head)
 
 
 -- execTransaction :: MonadIO m => HConn.Connection -> Transaction.Transaction -> m (Either Session.QueryError b)
 -- execQuery conn transaction = liftIO $ Session.run (Transaction.run transaction) conn
 
-data Order = Order {
-    orderId :: D.OrderId,
-    orderUserId :: D.UserId,
-    orderCreatedAt :: UTCTime,
-    orderStatus :: D.OrderStatus
-}
+-- data Order = Order {
+--     orderId :: D.OrderId,
+--     orderUserId :: D.UserId,
+--     orderCreatedAt :: UTCTime,
+--     orderStatus :: D.OrderStatus
+-- }
 
 
 -- -- Encode/Decode functions for PostgreSQL queries
@@ -82,28 +82,27 @@ data Order = Order {
 --     <> contramap IN.nOrOrderItems (param (ENC.nonNullable (ENC.array newOrderItemEncoder)))
 
 -- Function to insert a new order and its order items within a transaction
--- insertNewOrderWithTransaction :: Connection -> IN.NewOrderDTO -> IO (Either Session.QueryError ())
--- insertNewOrderWithTransaction conn newOrder = Session.run session conn
---   where
---     session =
---       transaction ReadCommitted Write $ do
---         -- Insert the new order
---         orderResult <- insertNewOrder conn newOrder
---         -- Insert the order items if the order insertion succeeded
---         case orderResult of
---           Right orderId -> lift $ insertOrderItems conn orderId (IN.nOrOrderItems newOrder)
---           Left queryError -> return (Left queryError)
+insertNewOrderWithTransaction :: Connection -> IN.NewOrderDTO -> IO (Either Session.QueryError [D.OrderItemId])
+insertNewOrderWithTransaction conn IN.NewOrderDTO {..} = Session.run mySession conn
+  where
+    mySession =
+      transaction ReadCommitted Write $ do
+        -- Insert the new order
+        orderId <- statement nOrUserId ST.insertNewOrder
+        -- Insert the order items if the order insertion succeeded
+        traverse (\ a ->statement (orderId, a) ST.insertOrderItems) nOrOrderItems
+        -- statement (orderId, head nOrOrderItems) ST.insertOrderItems
 
 -- Function to insert a new order into the "orders" table
-insertNewOrder :: Connection -> IN.NewOrderDTO -> IO (Either Session.QueryError D.OrderId)
-insertNewOrder conn IN.NewOrderDTO {..} = session conn do $
-  orderId <- Session.statement IN.nOrUserId ST.insertNewOrder 
-  where
-    session =
-      statement (IN.nOrUserId newOrder) $ Statement sql encoder decoder True
-    sql = "INSERT INTO orders (user_id) VALUES ($1) RETURNING id"
-    encoder = contramap IN.nOrUserId (param (ENC.nonNullable ENC.int8))
-    decoder = DEC.singleRow (DEC.column (DEC.nonNullable (fmap (OrderId . fromIntegral) DEC.noResult)))
+-- insertNewOrder :: Connection -> IN.NewOrderDTO -> IO (Either Session.QueryError D.OrderId)
+-- insertNewOrder conn IN.NewOrderDTO {..} = session conn do $
+--   orderId <- Session.statement IN.nOrUserId ST.insertNewOrder 
+--   where
+--     session =
+--       statement (IN.nOrUserId newOrder) $ Statement sql encoder decoder True
+--     sql = "INSERT INTO orders (user_id) VALUES ($1) RETURNING id"
+--     encoder = contramap IN.nOrUserId (param (ENC.nonNullable ENC.int8))
+--     decoder = DEC.singleRow (DEC.column (DEC.nonNullable (fmap (OrderId . fromIntegral) DEC.noResult)))
 
 -- Function to insert the order items into the "order_items" table
 -- insertOrderItems :: Connection -> D.OrderId -> [IN.NewOrderItemDTO] -> IO (Either Session.QueryError ())

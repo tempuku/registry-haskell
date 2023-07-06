@@ -58,6 +58,7 @@ default-extensions:
 - TypeFamilies
 - RecordWildCards
 - LambdaCase
+- QuasiQuotes 
 - ApplicativeDo 
 
 # Deriving extensions

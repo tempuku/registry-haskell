@@ -53,6 +53,7 @@ library
       TypeFamilies
       RecordWildCards
       LambdaCase
+      QuasiQuotes
       ApplicativeDo
       GeneralizedNewtypeDeriving
       DeriveGeneric
@@ -112,6 +113,7 @@ executable registry-haskell-exe
       TypeFamilies
       RecordWildCards
       LambdaCase
+      QuasiQuotes
       ApplicativeDo
       GeneralizedNewtypeDeriving
       DeriveGeneric
@@ -154,6 +156,7 @@ test-suite registry-haskell-test
       TypeFamilies
       RecordWildCards
       LambdaCase
+      QuasiQuotes
       ApplicativeDo
       GeneralizedNewtypeDeriving
       DeriveGeneric
