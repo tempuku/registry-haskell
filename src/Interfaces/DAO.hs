@@ -10,6 +10,10 @@ data ErrDAO
   | ErrValidation String
   deriving (Show, Eq)
 
+newtype TargetTopic a = TargetTopic {
+            _unTTopic :: a
+        }
+
 type ProductPricesMap = Map D.ProductId Float
 
 type GetMap m = (IN.Logger m, MonadIO m) => [D.ProductId] -> m (Either ErrDAO ProductPricesMap)
@@ -23,7 +27,7 @@ data OrdersDAO m = OrdersDAO {
         _createOrder :: IN.NewOrderDTO -> m (Either ErrDAO D.Order)
     }
 
-data MessagesDAO m = MessagesDAO 
+data MessagesDAO m a = MessagesDAO 
     {
-        _sendNewOrderMsg :: IN.NewOrderMessageDTO -> m (Either ErrDAO ())
+        _sendNewOrderMsg :: TargetTopic a -> IN.NewOrderMessageDTO -> m (Either ErrDAO ())
     }

@@ -4,10 +4,12 @@ import RIO
 import qualified RIO.Map as Map
 import System.IO
 import qualified Network.Wai.Handler.Warp as Warp
+import qualified Hasql.Connection as Connection
 import qualified Config.Config as Config
-
+import Kafka.Producer (ProducerProperties, TopicName)
 import Usecases
-import qualified Adapter.Storage.InMemory.ProductPrices as HasqlUserRepo
+import qualified Adapter.Storage.InMemory.ProductPrices as InMemoUserRepo
+import qualified Adapter.Storage.Hasql.Order as HasqlOrderRepo
 import qualified Adapter.Storage.Kafka.Messages as KafkaRepo
 import qualified Domain.Models as D
 import qualified Interfaces.DAO as IN
@@ -23,16 +25,23 @@ import Adapter.Http.Servant.Router
 main :: IO ()
 main = do
     writeSwaggerJSON
+    --Web server config
     port <- Config.getIntFromEnv "PORT" 3000
     storageBackend <- Config.getStringFromEnv "STORAGE" "inMem"
+    --DB config
+    connSettings <- HP.hasqlConnectionSettings
+    Right conn <- Connection.acquire connSettings
+    --Kafka config
+    kafkaSetting <- HP.kafkaConnectionSettings
     newOrderQueue <- newTQueueIO
     router <- case storageBackend of
             "inMem" -> app (usecasesBuilder newOrderQueue inMemProductPricesDAO) $ runRIO ()
             _ -> error $ "Incorrect storage:" <> storageBackend
-    eventPipeProcessorStart newOrderQueue $ runRIO ()
+    
+    eventPipeProcessorStart (IN.TargetTopic "new_orders_topic") kafkaSetting conn newOrderQueue $ runRIO ()
     Warp.run port router
 
-usecasesBuilder :: (IN.Logger m, MonadUnliftIO m) =>UC.NewOrdersPipe -> IN.ProductPricesDAO m -> IN.Usecases m
+usecasesBuilder :: (IN.Logger m, MonadUnliftIO m) => UC.NewOrdersPipe -> IN.ProductPricesDAO m -> IN.Usecases m
 usecasesBuilder orderQueue productPricesDAO = IN.Usecases (
                 makeOrderUsecase ordersService
             )
@@ -43,7 +52,7 @@ usecasesBuilder orderQueue productPricesDAO = IN.Usecases (
 
 inMemProductPricesDAO :: (MonadUnliftIO m) =>IN.ProductPricesDAO m
 inMemProductPricesDAO = IN.ProductPricesDAO (
-                HasqlUserRepo.getMap inMemoryPrices
+                InMemoUserRepo.getMap inMemoryPrices
             )
             where
                 inMemoryPrices = Map.fromList [
@@ -53,23 +62,23 @@ inMemProductPricesDAO = IN.ProductPricesDAO (
                         , (D.ProductId 4, 4.0)
                     ]
 
-eventPipeProcessorStart :: (MonadIO m, IN.Logger m) => UC.NewOrdersPipe -> (forall a. m a -> IO a) -> IO ()
-eventPipeProcessorStart orderQueue = UC.eventPipeProcessorRunner eventPipes eventPipeProcessorService
+eventPipeProcessorStart :: (IN.Logger m, MonadIO m) => IN.TargetTopic TopicName -> ProducerProperties -> Connection.Connection -> UC.NewOrdersPipe -> (forall a. m a -> IO a) -> IO ()
+eventPipeProcessorStart targetTopic kafkaSettings conn orderQueue runner = UC.eventPipeProcessorRunner eventPipes eventPipeProcessorService runner
     where
         eventPipes = UC.EventPipes (
             orderQueue
             )
         eventPipeProcessorService = UC.EventPipeProcessor (
-            UC.processNewOrder ordersDAO messageService
+            UC.processNewOrder ordersDAO messageService targetTopic
             )
         messageService = UC.MessageService (
                 UC.sendNewOrderMsg messagesDAO
             )
         messagesDAO = IN.MessagesDAO (
-                KafkaRepo.sendNewOrderMsg
+                KafkaRepo.sendNewOrderMsg $ KafkaRepo.getKafkaProducer kafkaSettings 
             )
         ordersDAO = IN.OrdersDAO (
-                 _a
+                 HasqlOrderRepo.insertNewOrderWithTransaction conn
             )
 
 instance IN.Logger (RIO a) where
