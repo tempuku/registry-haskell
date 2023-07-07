@@ -36,17 +36,17 @@ enrichOrderItemsDataWithPrices productPricesMap =
 
 hasqlConnectionSettings :: IO Connection.Settings
 hasqlConnectionSettings = do
-  dbHost <- Config.getStringFromEnv "DB_HOST" "localhost"
-  dbPort <- Config.getIntFromEnv "DB_PORT" 5432
-  dbUser <- Config.getStringFromEnv "DB_USER" "postgres"
-  dbPassword <- Config.getStringFromEnv "DB_PASSWORD" "password"
-  dbName <- Config.getStringFromEnv "DB_NAME" "postgres"
+  dbHost <- Config.getStringFromEnv "POSTGRES_HOST" "localhost"
+  dbPort <- Config.getIntFromEnv "POSTGRES_PORT" 5432
+  dbUser <- Config.getStringFromEnv "POSTGRES_USER" "user"
+  dbPassword <- Config.getStringFromEnv "POSTGRES_PASSWORD" "password"
+  dbName <- Config.getStringFromEnv "POSTGRES_DB" "mydb"
   pure $ Connection.settings (bString dbHost) (fromIntegral dbPort) (bString dbUser) (bString dbPassword) (bString dbName)
   where
     bString = T.encodeUtf8 . T.pack
 
 producerProps :: ProducerProperties
-producerProps = brokersList ["localhost:9092"]
+producerProps = brokersList ["localhost:9093"]
              <> sendTimeout (Timeout 10000)
              <> setCallback (deliveryCallback print)
              <> logLevel KafkaLogDebug

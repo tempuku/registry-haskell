@@ -20,6 +20,8 @@ import qualified Services.Order as UC
 import qualified Services.EventPipe as UC
 import qualified Services.Message as UC
 import Adapter.Http.Servant.Router
+import Control.Exception (throw)
+import Control.Exception.Lens (AsIOException(_IOException))
 
 
 main :: IO ()
@@ -30,7 +32,12 @@ main = do
     storageBackend <- Config.getStringFromEnv "STORAGE" "inMem"
     --DB config
     connSettings <- HP.hasqlConnectionSettings
-    Right conn <- Connection.acquire connSettings
+    conn <- Connection.acquire connSettings
+    conn <- case conn of
+        Right a -> pure a
+        Left a -> do 
+            print a
+            error "shit"
     --Kafka config
     kafkaSetting <- HP.kafkaConnectionSettings
     newOrderQueue <- newTQueueIO

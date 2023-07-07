@@ -25,6 +25,7 @@ import qualified Interfaces.DAO as IN
 import qualified Interfaces.DTO as IN
 import Data.Aeson (encode)
 import RIO.ByteString.Lazy (toStrict)
+import qualified Interfaces.Logger as IN
 
 
 type KafkaWriter m = IN.TargetTopic TopicName -> Maybe ByteString -> m (Maybe KafkaError)
@@ -47,7 +48,7 @@ producerProps = brokersList ["localhost:9092"]
 --                   , prValue = v
 --                   }
 
-getKafkaProducer :: (Monad m, MonadIO m) => ProducerProperties -> IN.TargetTopic TopicName -> Maybe ByteString -> m (Maybe KafkaError)
+getKafkaProducer :: MonadIO m =>ProducerProperties -> IN.TargetTopic TopicName -> Maybe ByteString -> m (Maybe KafkaError)
 getKafkaProducer props targetTopic v = newProducer props >>= producerCase >>= flip produceMessage producerRecord
     where
         producerCase = \case
@@ -60,15 +61,17 @@ getKafkaProducer props targetTopic v = newProducer props >>= producerCase >>= fl
                   , prValue = v
                   }
 
-sendNewOrderMsg :: Monad m => KafkaWriter m -> IN.TargetTopic TopicName -> IN.NewOrderMessageDTO -> m (Either IN.ErrDAO ())
+sendNewOrderMsg :: (IN.Logger m, Monad m) => KafkaWriter m -> IN.TargetTopic TopicName -> IN.NewOrderMessageDTO -> m (Either IN.ErrDAO ())
 sendNewOrderMsg producer targetTopic newOrderDTO = do
     -- pure . errHandler $ producer . Just . toStrict . encode $ newOrderDTO
     -- Just . toStrict . encode $ newOrderDTO >>= producer >>= errHandler >>= pure
     let bytes =  Just . toStrict . encode $ newOrderDTO
     b <- producer targetTopic bytes
     pure . errHandler $ b
+
     where
         errHandler =  \case
             Nothing -> Right ()
-            Just e -> Left . IN.ErrTechnical $ displayException e
+            Just e -> do 
+                Left . IN.ErrTechnical $ displayException e
         -- makeMessage IN.NewOrderMessageDTO {..} = IN.NewOrderItemMessageDTO ()
