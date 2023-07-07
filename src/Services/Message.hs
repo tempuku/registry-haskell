@@ -7,10 +7,10 @@ import qualified Interfaces.DTO as IN
 import qualified Interfaces.DAO as IN
 
 
-data MessageService m = MessageService
+data MessageService m a = MessageService
     {
-        _sendNewOrderMsg :: IN.NewOrderMessageDTO -> m (Either IN.ErrDAO ())
+        _sendNewOrderMsg :: IN.TargetTopic a -> IN.NewOrderMessageDTO -> m (Either IN.ErrDAO ())
     }
 
-sendNewOrderMsg :: IN.MessagesDAO m -> IN.NewOrderMessageDTO -> m (Either IN.ErrDAO ())
-sendNewOrderMsg IN.MessagesDAO {..} newOrderDTO = _sendNewOrderMsg newOrderDTO
+sendNewOrderMsg :: IN.MessagesDAO m a -> IN.TargetTopic a -> IN.NewOrderMessageDTO -> m (Either IN.ErrDAO ())
+sendNewOrderMsg IN.MessagesDAO {..} targetTopic newOrderDTO = _sendNewOrderMsg targetTopic newOrderDTO

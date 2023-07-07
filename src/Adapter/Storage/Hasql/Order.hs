@@ -1,6 +1,3 @@
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE TemplateHaskell #-}
-
 module Adapter.Storage.Hasql.Order where
 
 import qualified Interfaces.DAO as IN
@@ -22,6 +19,8 @@ import RIO.Partial (toEnum)
 import RIO.Time (UTCTime)
 import Prelude (print)
 import RIO.List.Partial (head)
+import qualified Interfaces.Logger as IN
+import Interfaces.DAO (ErrDAO)
 
 
 -- execTransaction :: MonadIO m => HConn.Connection -> Transaction.Transaction -> m (Either Session.QueryError b)
@@ -82,16 +81,23 @@ import RIO.List.Partial (head)
 --     <> contramap IN.nOrOrderItems (param (ENC.nonNullable (ENC.array newOrderItemEncoder)))
 
 -- Function to insert a new order and its order items within a transaction
-insertNewOrderWithTransaction :: Connection -> IN.NewOrderDTO -> IO (Either Session.QueryError [D.OrderItemId])
-insertNewOrderWithTransaction conn IN.NewOrderDTO {..} = Session.run mySession conn
+insertNewOrderWithTransaction :: (IN.Logger m, MonadIO m) =>  Connection -> IN.NewOrderDTO -> m (Either ErrDAO D.Order)
+insertNewOrderWithTransaction conn IN.NewOrderDTO {..} = do
+    result <- liftIO $ Session.run mySession conn
+    case result of
+        Left e -> do
+            IN.logDebug $ displayException e
+            pure . Left . IN.ErrTechnical $ displayException e
+        Right a -> pure $ Right a
   where
     mySession =
       transaction ReadCommitted Write $ do
         -- Insert the new order
-        orderId <- statement nOrUserId ST.insertNewOrder
+        order <- statement nOrUserId ST.insertNewOrder
         -- Insert the order items if the order insertion succeeded
-        traverse (\ a ->statement (orderId, a) ST.insertOrderItems) nOrOrderItems
-        -- statement (orderId, head nOrOrderItems) ST.insertOrderItems
+        orderItems <- traverse (\ a ->statement (ST.orderId order, a) ST.insertOrderItems) nOrOrderItems
+        let (ST.Order {..}) = order 
+        return $ D.Order orderId orderUserId orderCreatedAt orderStatus orderItems
 
 -- Function to insert a new order into the "orders" table
 -- insertNewOrder :: Connection -> IN.NewOrderDTO -> IO (Either Session.QueryError D.OrderId)
