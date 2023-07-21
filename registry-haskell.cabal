@@ -42,7 +42,6 @@ library
       Services.EventPipe
       Services.Message
       Services.Order
-      Services.Test
       Usecases
   other-modules:
       Paths_registry_haskell
@@ -103,7 +102,6 @@ executable registry-haskell-exe
       Services.EventPipe
       Services.Message
       Services.Order
-      Services.Test
       Usecases
       Paths_registry_haskell
   hs-source-dirs:
