@@ -26,6 +26,7 @@ dependencies:
 - rio
 - unix
 - servant-server
+- hw-kafka-client
 - servant-swagger
 - servant-swagger-ui
 - servant-swagger-ui-core
@@ -52,6 +53,7 @@ default-extensions:
 - NoImplicitPrelude
 - DeriveAnyClass
 - TypeFamilies
+- RecordWildCards
 
 # Deriving extensions
 - GeneralizedNewtypeDeriving
