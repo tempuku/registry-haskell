@@ -1,0 +1,189 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.2.
+--
+-- see: https://github.com/sol/hpack
+
+name:           registry-haskell
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/registry-haskell#readme>
+homepage:       https://github.com/githubuser/registry-haskell#readme
+bug-reports:    https://github.com/githubuser/registry-haskell/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2023 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/registry-haskell
+
+library
+  exposed-modules:
+      Adapter.Http.Servant.Handlers
+      Adapter.Http.Servant.Router
+      Adapter.Http.Servant.Schemas
+      Adapter.Storage.Hasql.Order
+      Adapter.Storage.Hasql.Statement
+      Adapter.Storage.InMemory.ProductPrices
+      Adapter.Storage.Kafka.Messages
+      Config.Config
+      Domain.Models
+      Helpers
+      Interfaces.DAO
+      Interfaces.DTO
+      Interfaces.Logger
+      Interfaces.Usecases
+      Services.EventPipe
+      Services.Message
+      Services.Order
+      Services.Test
+      Usecases
+  other-modules:
+      Paths_registry_haskell
+  hs-source-dirs:
+      src
+  default-extensions:
+      NoImplicitPrelude
+      DeriveAnyClass
+      TypeFamilies
+      RecordWildCards
+      LambdaCase
+      QuasiQuotes
+      ApplicativeDo
+      GeneralizedNewtypeDeriving
+      DeriveGeneric
+      Rank2Types
+      OverloadedStrings
+      NumericUnderscores
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-missing-export-lists -Wno-orphans -O2 -flate-specialise -fspecialise-aggressively
+  build-depends:
+      aeson
+    , aeson-pretty
+    , base >=4.7 && <5
+    , hasql
+    , hasql-th
+    , hasql-transaction
+    , hw-kafka-client
+    , lens
+    , mtl
+    , rio
+    , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , servant-swagger-ui-core
+    , swagger2
+    , unix
+    , wai
+    , warp
+  default-language: Haskell2010
+
+executable registry-haskell-exe
+  main-is: Main.hs
+  other-modules:
+      Adapter.Http.Servant.Handlers
+      Adapter.Http.Servant.Router
+      Adapter.Http.Servant.Schemas
+      Adapter.Storage.Hasql.Order
+      Adapter.Storage.Hasql.Statement
+      Adapter.Storage.InMemory.ProductPrices
+      Adapter.Storage.Kafka.Messages
+      Config.Config
+      Domain.Models
+      Helpers
+      Interfaces.DAO
+      Interfaces.DTO
+      Interfaces.Logger
+      Interfaces.Usecases
+      Services.EventPipe
+      Services.Message
+      Services.Order
+      Services.Test
+      Usecases
+      Paths_registry_haskell
+  hs-source-dirs:
+      app
+      src
+  default-extensions:
+      NoImplicitPrelude
+      DeriveAnyClass
+      TypeFamilies
+      RecordWildCards
+      LambdaCase
+      QuasiQuotes
+      ApplicativeDo
+      GeneralizedNewtypeDeriving
+      DeriveGeneric
+      Rank2Types
+      OverloadedStrings
+      NumericUnderscores
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-missing-export-lists -Wno-orphans -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , aeson-pretty
+    , base >=4.7 && <5
+    , hasql
+    , hasql-th
+    , hasql-transaction
+    , hw-kafka-client
+    , lens
+    , mtl
+    , registry-haskell
+    , rio
+    , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , servant-swagger-ui-core
+    , swagger2
+    , unix
+    , wai
+    , warp
+  default-language: Haskell2010
+
+test-suite registry-haskell-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_registry_haskell
+  hs-source-dirs:
+      test
+  default-extensions:
+      NoImplicitPrelude
+      DeriveAnyClass
+      TypeFamilies
+      RecordWildCards
+      LambdaCase
+      QuasiQuotes
+      ApplicativeDo
+      GeneralizedNewtypeDeriving
+      DeriveGeneric
+      Rank2Types
+      OverloadedStrings
+      NumericUnderscores
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-missing-export-lists -Wno-orphans -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , aeson-pretty
+    , base >=4.7 && <5
+    , hasql
+    , hasql-th
+    , hasql-transaction
+    , hw-kafka-client
+    , lens
+    , mtl
+    , registry-haskell
+    , rio
+    , servant-server
+    , servant-swagger
+    , servant-swagger-ui
+    , servant-swagger-ui-core
+    , swagger2
+    , unix
+    , wai
+    , warp
+  default-language: Haskell2010

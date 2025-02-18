@@ -1,0 +1,125 @@
+{
+    "swagger": "2.0",
+    "definitions": {
+        "CreateOrderRequest": {
+            "type": "object",
+            "properties": {
+                "order_items": {
+                    "items": {
+                        "$ref": "#/definitions/CreateOrderRequestItem"
+                    },
+                    "type": "array"
+                },
+                "user_id": {
+                    "$ref": "#/definitions/UserId"
+                }
+            },
+            "example": {
+                "order_items": [
+                    {
+                        "count": 1,
+                        "product_id": 1
+                    }
+                ],
+                "user_id": 1
+            },
+            "required": [
+                "user_id",
+                "order_items"
+            ],
+            "description": "This is some real Order right here"
+        },
+        "UserId": {
+            "maximum": 9223372036854775807,
+            "type": "integer",
+            "minimum": -9223372036854775808
+        },
+        "CreateOrderRequestItem": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "exclusiveMinimum": false,
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "product_id": {
+                    "$ref": "#/definitions/ProductId"
+                }
+            },
+            "required": [
+                "product_id",
+                "count"
+            ]
+        },
+        "ProductId": {
+            "maximum": 9223372036854775807,
+            "type": "integer",
+            "minimum": -9223372036854775808
+        },
+        "CreateOrderResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "status"
+            ]
+        }
+    },
+    "paths": {
+        "/orders": {
+            "post": {
+                "consumes": [
+                    "application/json;charset=utf-8"
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid `body`"
+                    },
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/CreateOrderResponse"
+                        },
+                        "description": ""
+                    }
+                },
+                "produces": [
+                    "application/json;charset=utf-8"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateOrderRequest"
+                        },
+                        "in": "body"
+                    }
+                ]
+            }
+        },
+        "/": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "produces": [
+                    "application/json;charset=utf-8"
+                ]
+            }
+        }
+    },
+    "info": {
+        "version": "1.0",
+        "title": "Registry API",
+        "license": {
+            "url": "http://mit.com",
+            "name": "MIT"
+        },
+        "description": "This is an API that tests swagger integration"
+    }
+}

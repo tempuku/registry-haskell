@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "registry-haskell:lib"
+
+    - path: "./app/Main.hs"
+      component: "registry-haskell:exe:registry-haskell-exe"
+
+    - path: "./app/Paths_registry_haskell.hs"
+      component: "registry-haskell:exe:registry-haskell-exe"
+
+    - path: "./test"
+      component: "registry-haskell:test:registry-haskell-test"
